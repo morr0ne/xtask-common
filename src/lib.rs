@@ -66,10 +66,23 @@ impl CommonCommands {
     }
 }
 
+const RUSTFLAGS: &[&str] = &[
+    "-C link-arg=-fuse-ld=lld",
+    "-C linker-plugin-lto",
+    "-C link-arg=-Wl,-z,pack-relative-relocs",
+    "-C link-arg=-Wl,-O1",
+    "-C link-arg=-Wl,--gc-sections",
+    "-C link-arg=-Wl,--as-needed",
+    "-C link-arg=-Wl,-z,now",
+    "-C link-arg=-Wl,-z,relro",
+];
+
 fn build() -> Result<()> {
     let sh = Shell::new()?;
     println!("Building release version...");
-    cmd!(sh, "cargo build --release").run()?;
+    cmd!(sh, "cargo build --release")
+        .env("RUSTFLAGS", RUSTFLAGS.join(" "))
+        .run()?;
     Ok(())
 }
 
